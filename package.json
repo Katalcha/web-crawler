@@ -1,0 +1,23 @@
+{
+  "name": "web-crawler",
+  "version": "0.0.1",
+  "description": "A SEO link analyzer type of web crawler built with javascript and node.js. This project is part of the boot.dev backend developer career path.",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Katalcha/web-crawler.git"
+  },
+  "author": "REvers",
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/Katalcha/web-crawler/issues"
+  },
+  "homepage": "https://github.com/Katalcha/web-crawler#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
