@@ -25,7 +25,35 @@ const getURLsFromHTML = (htmlBody, baseURL) => {
     return urls;
 };
 
+const crawlPage = async (rootURL) => {
+    try {
+        console.log('...crawling');
+        const init = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'text/html'
+            }
+        };
+        const response = await fetch(rootURL, init);
+        if (response.status > 399) {
+            console.error(`HTTP Error, Status Code: ${response.status}`);
+            return
+        }
+        const contentType = response.headers.get('content-type');
+        if (!contentType.includes('text/html')) {
+            console.error(`Non-HTML response: ${contentType}`);
+            return
+        }
+        const text = await response.text();
+        console.log(text);
+        console.log('\ndone');
+    } catch (e) {
+        console.log(e.message);
+    }
+};
+
 module.exports = {
     normalizeURL,
-    getURLsFromHTML
+    getURLsFromHTML,
+    crawlPage
 };
