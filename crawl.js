@@ -25,31 +25,47 @@ const getURLsFromHTML = (htmlBody, baseURL) => {
     return urls;
 };
 
-const crawlPage = async (rootURL) => {
+const crawlPage = async (baseURL, currentURL, pages) => {
+    const currentURLObject = new URL(currentURL);
+    const baseURLObject = new URL(baseURL);
+    const normalizedURL = normalizeURL(currentURL);
+
+    // if a link links to another host, stop crawling
+    if (currentURLObject.hostname !== baseURLObject.hostname) { return pages; }
+
+    // if the page is already visited, don't repeat http request
+    if (pages[normalizedURL] > 0) { pages[normalizedURL]++; return pages; }
+
+    // add page to map, when it is not existent yet
+    pages[normalizedURL] = 1;
+
+    // fetch html of currentURL
+    console.log(`crawling in my skin... ${currentURL}`);
+    let htmlBody = '';
     try {
-        console.log('...crawling');
-        const init = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'text/html'
-            }
-        };
-        const response = await fetch(rootURL, init);
-        if (response.status > 399) {
-            console.error(`HTTP Error, Status Code: ${response.status}`);
-            return
-        }
+        const init = { method:'GET', headers:{ 'Content-Type': 'text/html' } };
+        const response = await fetch(currentURL, init);
         const contentType = response.headers.get('content-type');
-        if (!contentType.includes('text/html')) {
-            console.error(`Non-HTML response: ${contentType}`);
-            return
+        
+        if (response.status > 399) {
+            console.log(`HTTP error, status code ${response.status}`)
+            return pages;
         }
-        const text = await response.text();
-        console.log(text);
-        console.log('\ndone');
-    } catch (e) {
-        console.log(e.message);
+        
+        if (!contentType.includes('text/html')) {
+            console.log(`Non-HTML response: ${contentType}`);
+            return pages;
+        }
+        
+        htmlBody = await response.text();
+    } catch (e) { console.error(e.message); }
+
+    const nextURLs = getURLsFromHTML(htmlBody, baseURL);
+    for (const URL of nextURLs) { 
+        pages = await crawlPage(baseURL, URL, pages);
     }
+
+    return pages;
 };
 
 module.exports = {
